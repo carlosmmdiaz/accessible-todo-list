@@ -1,5 +1,7 @@
 # Accessible Todo List
 
+[Live version](https://happy-darwin-5a6793.netlify.app/)
+
 [![Built with open-wc recommendations](https://img.shields.io/badge/built%20with-open--wc-blue.svg)](https://github.com/open-wc)
 
 Based on [inclusive-components](https://inclusive-components.design/a-todo-list/) for accessibility demos.
