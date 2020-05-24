@@ -172,7 +172,7 @@ export class AccessibleTodoList extends ScopedElementsMixin(LitElement) {
    */
   renderForm() {
     return html`
-      <form>
+      <form onsubmit="event.preventDefault();">
         <cmmd-input
           id="newTodo"
           name="newTodo"
@@ -184,8 +184,8 @@ export class AccessibleTodoList extends ScopedElementsMixin(LitElement) {
           @model-value-changed=${e => this.onInputChange(e.target.value)}
         ></cmmd-input>
         <cmmd-button
-          class="add-todo-button"
           type="submit"
+          class="add-todo-button"
           ?disabled=${this._disabledButton}
           @click=${e => this.addTodo(e)}
         >
