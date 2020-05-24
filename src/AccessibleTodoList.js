@@ -144,7 +144,6 @@ export class AccessibleTodoList extends ScopedElementsMixin(LitElement) {
   renderListOfTodos() {
     return html`<ul>
       ${this._todoList.map((item, index) => {
-        console.log(item);
         return html`
           <li>
             <cmmd-checkbox
