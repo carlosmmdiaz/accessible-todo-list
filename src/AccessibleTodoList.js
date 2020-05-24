@@ -1,9 +1,9 @@
 import { LitElement, html } from 'lit-element';
-import { classMap } from 'lit-html/directives/class-map';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { CMMDButton } from '@cmmd-web/button/src/CMMDButton.js';
 import { CMMDInput } from '@cmmd-web/input/src/CMMDInput.js';
 import { CMMDCheckbox } from '@cmmd-web/checkbox/src/CMMDCheckbox.js';
+import { crossIcon } from '@cmmd-web/styles';
 
 import styles from './AccessibleTodoList.style.js';
 
@@ -13,15 +13,6 @@ export class AccessibleTodoList extends ScopedElementsMixin(LitElement) {
       'cmmd-button': CMMDButton,
       'cmmd-input': CMMDInput,
       'cmmd-checkbox': CMMDCheckbox,
-    };
-  }
-
-  static get properties() {
-    return {
-      _todoList: { type: Array },
-      _newTodo: { type: String },
-      _disabledButton: { type: Boolean },
-      _liveRegionFeedback: { type: String },
     };
   }
 
@@ -36,7 +27,10 @@ export class AccessibleTodoList extends ScopedElementsMixin(LitElement) {
      * List of todos
      * @type {Array}
      */
-    this._todoList = [{ value: 'Buy chocolate', status: false }];
+    this._todoList = [
+      { value: 'Buy chocolate', status: false },
+      { value: 'Buy milk', status: false },
+    ];
 
     /**
      * Input modelValue
@@ -49,21 +43,27 @@ export class AccessibleTodoList extends ScopedElementsMixin(LitElement) {
      * @type {boolean}
      */
     this._disabledButton = true;
+
+    /**
+     * Current content of the live region for screen reader users
+     * @type {String}
+     */
+    this._liveRegionFeedback = '';
   }
 
   /**
    * Check if the input value is valid and enable or disable the addTodo button
-   * Also save the model value of the input newTodo in a private variable
-   * @param {Event} event keyup input event
+   * Also save the inputValue for later use
+   * @param {String} inputValue
    */
-  validateAndSaveInput() {
-    const inputNewTodo = this.shadowRoot.getElementById('newTodo');
+  onInputChange(inputValue) {
+    this._newTodo = inputValue;
 
-    this._newTodo = inputNewTodo.value;
-
-    this._newTodo.length > 0
+    inputValue.length > 0
       ? (this._disabledButton = false)
       : (this._disabledButton = true);
+
+    this.requestUpdate();
   }
 
   /**
@@ -73,17 +73,44 @@ export class AccessibleTodoList extends ScopedElementsMixin(LitElement) {
   addTodo(e) {
     e.preventDefault();
 
-    this._todoList.push({ value: this._newTodo, status: false });
+    if (this._newTodo) {
+      this._todoList.push({ value: this._newTodo, status: false });
 
-    // Add feedback for screen reader users
-    this._liveRegionFeedback = `${this._newTodo} added`;
+      // Add feedback for screen reader users
+      this._liveRegionFeedback = `Task called ${this._newTodo} added`;
 
-    this._newTodo = '';
+      this._newTodo = '';
+
+      this.requestUpdate();
+    }
   }
 
+  /**
+   * Delete a todo item from the list,  also provide feedback for screen reader users
+   * @param {Number} index
+   */
+  deleteTodo(index) {
+    const taskName = this._todoList[index].value;
+
+    if (confirm(`Do you want to delete ${taskName} task?`)) {
+      this._todoList.splice(index, 1);
+
+      // Add feedback for screen reader users
+      this._liveRegionFeedback = `Task called ${taskName} deleted`;
+
+      this.requestUpdate();
+
+      // Change focus to avoid "ghost" focus
+      this.shadowRoot.querySelector('h1').focus();
+    }
+  }
+
+  /**
+   * Change the status of a task
+   * @param {Number} index
+   */
   checkTodo(index) {
     this._todoList[index].status = !this._todoList[index].status;
-    this.requestUpdate();
   }
 
   /**
@@ -117,15 +144,24 @@ export class AccessibleTodoList extends ScopedElementsMixin(LitElement) {
   renderListOfTodos() {
     return html`<ul>
       ${this._todoList.map((item, index) => {
+        console.log(item);
         return html`
           <li>
             <cmmd-checkbox
-              class=${classMap({ checked: item.status })}
+              class="checkbox"
               label=${item.value}
               .choiceValue=${item.value}
-              ?checked=${item.status}
               @click=${_ => this.checkTodo(index)}
             ></cmmd-checkbox>
+            <cmmd-button
+              class="delete-todo-button"
+              @click=${_ => this.deleteTodo(index)}
+              aria-label=${`Delete ${item.value}`}
+              rounded
+              danger
+            >
+              ${crossIcon}
+            </cmmd-button>
           </li>
         `;
       })}
@@ -146,7 +182,7 @@ export class AccessibleTodoList extends ScopedElementsMixin(LitElement) {
           placeholder="E.g. Adopt an owl"
           aria-invalid="${this._disabledButton}"
           .modelValue=${this._newTodo}
-          @keyup=${_ => this.validateAndSaveInput()}
+          @model-value-changed=${e => this.onInputChange(e.target.value)}
         ></cmmd-input>
         <cmmd-button
           class="add-todo-button"
@@ -164,8 +200,7 @@ export class AccessibleTodoList extends ScopedElementsMixin(LitElement) {
     return html`
       <main>
         <section aria-labelledby="todos-label">
-          <h1 id="todos-label">My Todo List</h1>
-
+          <h1 id="todos-label" tabindex="-1">My Todo List</h1>
           ${this._todoList.length === 0
             ? this.renderEmptyState()
             : this.renderListOfTodos()}

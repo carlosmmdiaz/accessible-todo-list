@@ -3,6 +3,7 @@ import { css } from 'lit-element';
 export default css`
   :host {
     min-height: 100vh;
+    width: 20ch;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -28,11 +29,30 @@ export default css`
     margin: 0;
   }
 
+  ul li {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+  }
+
+  .empty-state {
+    border: 0.1rem solid black;
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    margin-bottom: 1rem;
+  }
+
   .add-todo-button {
     margin-left: 12px;
   }
 
-  .checked {
+  .delete-todo-button {
+    margin-top: -0.5rem;
+    margin-left: 1rem;
+  }
+
+  /* No use of JavaScript for this, just CSS */
+  .checkbox[checked] {
     text-decoration: line-through;
   }
 
@@ -45,6 +65,11 @@ export default css`
     height: 1px !important;
     width: 1px !important;
     overflow: hidden;
+  }
+
+  /* Remove focus style to elements focus by js */
+  [tabindex='-1'] {
+    outline: none;
   }
 
   /* Placeholder styles */

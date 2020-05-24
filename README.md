@@ -9,13 +9,17 @@ Based on [inclusive-components](https://inclusive-components.design/a-todo-list/
 - Every page needs a main tag
 - Each section needs a title, and can have a aria-labelledby tag
 - Use a form tag to submit on ENTER
+- If it is there something that you can do without JavaScript, do it, even if it is harder...it will be more efficient
 - All inputs must have labels unless there is a button close by, then use aria-label to put a invisible label on the input
+- Also use aria-label for buttons that have not text, only icons for example (delete button)
 - Recommended that you style placeholders to have a higher contrast cross-browser
 - Use aria-invalid="true" to say if an input is invalid
 - Live regions are elements that tell screen readers to announce their contents whenever those contents change
 - With a live region, we can make screen readers talk to their users without making those users perform any action (such as moving focus).
 - Use role="status" and aria-live="polite" to tell the screen reader users that this is a live region
 - Use visually-hidden class to visually hide elements but not for screen reader users.
+- Do you need a quick accessible modal dialog, just use confirm()
+- Do not supply focus styles to elements which are focused programmatically in this way.
 
 ## Scripts
 
